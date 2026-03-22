@@ -119,6 +119,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   // // the triangle under bypass ON, they will see a curved triangle slope
   // // on toggling bypass OFF, which is unexpected.
   tremolo.setModulationRateHz(parameters.rate);
+  tremolo.setVolume(parameters.volume);
   // tremolo.setLfoWaveform(
   //     static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
   //     applySmoothing);

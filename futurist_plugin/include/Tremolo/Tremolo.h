@@ -9,6 +9,7 @@ public:
   //   sine = 0,
   //   triangle = 1,
   // };
+  float volume = 0;
 
   Tremolo() {
     lfo.setFrequency(440.f, true);
@@ -33,6 +34,9 @@ public:
     lfo.prepare(processSpec);
   }
 
+  void setVolume(float volume) noexcept {
+    this->volume = volume;
+  }
   void setModulationRateHz(float rateHz){
       // ApplySmoothing applySmoothing = ApplySmoothing::yes) noexcept {
     // const auto force = applySmoothing == ApplySmoothing::no;
@@ -64,8 +68,7 @@ public:
         const auto  inputSample = buffer.getSample(channelIndex, frameIndex);
 
         // modulate the sample
-        const auto outputSample = 0.1f * lfoValue ;
-        std::cout << lfoValue << std::endl;
+        const auto outputSample = 0.1f * lfoValue * volume;
 
         // set the output sample
         buffer.setSample(channelIndex, frameIndex, outputSample);

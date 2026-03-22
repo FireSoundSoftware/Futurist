@@ -3,6 +3,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
     : AudioProcessorEditor(&p),
       waveformAttachment{p.getParameterRefs().waveform, waveformComboBox},
       rateAttachment{p.getParameterRefs().rate, rateSlider},
+      volumeAttachment{p.getParameterRefs().volume, volumeSlider},
       bypassAttachment{p.getParameterRefs().bypassed, bypassButton},
       lfoVisualizer{
           [&p](juce::AudioBuffer<float>& b) { p.readAllLfoSamples(b); },
@@ -31,18 +32,32 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   waveformComboBox.addItemList(p.getParameterRefs().waveform.choices, 1);
   waveformAttachment.sendInitialUpdate();
   addAndMakeVisible(waveformComboBox);
-
+  //rateSlider
   rateSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
   rateSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
                              true, 0, 0);
   rateSlider.setTextValueSuffix(" Hz");
   rateSlider.setPopupDisplayEnabled(true, true, this);
   addAndMakeVisible(rateSlider);
-
+  //rateLabel
   rateLabel.setJustificationType(juce::Justification::centred);
   rateLabel.setInterceptsMouseClicks(false, false);
   rateLabel.setFont(lookAndFeel.getRateLabelFont());
   addAndMakeVisible(rateLabel);
+
+  //volumeSlider
+  volumeSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  volumeSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                           true, 0, 0);
+  volumeSlider.setTextValueSuffix(" times");
+  volumeSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(volumeSlider);
+  //volumeLabel
+  volumeLabel.setJustificationType(juce::Justification::centred);
+  volumeLabel.setInterceptsMouseClicks(false, false);
+  volumeLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(volumeLabel);
+
 
   bypassLabel.setJustificationType(juce::Justification::left);
   bypassLabel.setMinimumHorizontalScale(1.f);
@@ -89,8 +104,12 @@ void PluginEditor::resized() {
 
   //rateSliderBounds.removeFromBottom(110);
     //SLIDER
+  //rateSlider
   rateSlider.setBounds(490, 475, 50, 50);
   rateLabel.setBounds(490, 475, 50, 50);
+  //volumeSlider
+  volumeSlider.setBounds(790, 475, 50, 50);
+  volumeLabel.setBounds(790, 475, 50, 50);
 
 
   // auto waveformComboBoxBounds = bounds;

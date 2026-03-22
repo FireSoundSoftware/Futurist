@@ -15,10 +15,15 @@ private:
   juce::Label waveformLabel{"waveform label", "WAVEFORM"};
   juce::ComboBox waveformComboBox;
   juce::ComboBoxParameterAttachment waveformAttachment;
-
+  //rate
   juce::Label rateLabel{"rate label", "RATE"};
   juce::Slider rateSlider;
   juce::SliderParameterAttachment rateAttachment;
+  //volume
+  juce::Label volumeLabel{"volume label", "VOLUME"};
+  juce::Slider volumeSlider;
+  juce::SliderParameterAttachment volumeAttachment;
+
 
   juce::Label bypassLabel{"bypass label", "BYPASS"};
   juce::ToggleButton bypassButton{"BYPASSED"};

@@ -5,6 +5,7 @@ struct Parameters {
   explicit Parameters(juce::AudioProcessor&);
 
   juce::AudioParameterFloat& rate;
+  juce::AudioParameterFloat& volume;
   juce::AudioParameterBool& bypassed;
   juce::AudioParameterChoice& waveform;
 

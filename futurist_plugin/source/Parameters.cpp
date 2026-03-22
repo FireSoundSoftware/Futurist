@@ -7,6 +7,19 @@ auto& addParameterToProcessor(juce::AudioProcessor& processor, auto parameter) {
   return result;
 }
 
+
+juce::AudioParameterFloat& createVolumeParameter(
+    juce::AudioProcessor& processor) {
+    constexpr auto versionHint = 1;
+    return addParameterToProcessor(
+    processor,
+    std::make_unique<juce::AudioParameterFloat>(
+        juce::ParameterID{"modulation.volume", versionHint}, "Volume",
+        juce::NormalisableRange<float>{0.0f, 10.0f, 0.1f, 0.4f}, 5.f,
+        juce::AudioParameterFloatAttributes{}.withLabel("times")));
+}
+
+
 juce::AudioParameterFloat& createModulationRateParameter(
     juce::AudioProcessor& processor) {
   constexpr auto versionHint = 1;
@@ -40,6 +53,7 @@ juce::AudioParameterChoice& createWaveformParameter(
 
 Parameters::Parameters(juce::AudioProcessor& processor)
     : rate{createModulationRateParameter(processor)},
+      volume{createVolumeParameter(processor)},
       bypassed{createBypassedParameter(processor)},
       waveform{createWaveformParameter(processor)} {}
 }  // namespace tremolo
