@@ -14,7 +14,7 @@ juce::AudioParameterFloat& createModulationRateParameter(
       processor,
       std::make_unique<juce::AudioParameterFloat>(
           juce::ParameterID{"modulation.rate", versionHint}, "Modulation rate",
-          juce::NormalisableRange<float>{0.1f, 20.f, 0.01f, 0.4f}, 5.f,
+          juce::NormalisableRange<float>{0.1f, 440.f, 0.01f, 0.4f}, 5.f,
           juce::AudioParameterFloatAttributes{}.withLabel("Hz")));
 }
 

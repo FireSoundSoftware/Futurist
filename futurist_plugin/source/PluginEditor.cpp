@@ -67,7 +67,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
 
   // Make sure that before the constructor has finished, you've set the
   // editor's size to whatever you need it to be.
-  setSize(540, 270);
+  setSize(WIN_WIDTH, WIN_HEIGHT);
 }
 
 PluginEditor::~PluginEditor() {
@@ -81,49 +81,52 @@ void PluginEditor::resized() {
 
   logo.setBounds({16, 16, 105, 24});
 
-  auto lfoVisualizerBounds = bounds.reduced(18, 27);
-  lfoVisualizerBounds.removeFromTop(122);
-  lfoVisualizer.setBounds(lfoVisualizerBounds);
+  // auto lfoVisualizerBounds = bounds.reduced(18, 27);
+  // lfoVisualizerBounds.removeFromTop(122);
+  // lfoVisualizer.setBounds(lfoVisualizerBounds);
 
-  auto rateSliderBounds = bounds.reduced(230, 40);
-  rateSliderBounds.removeFromBottom(110);
-  rateSlider.setBounds(rateSliderBounds);
-  rateLabel.setBounds(rateSliderBounds);
+  //auto rateSliderBounds = bounds.reduced(10, 10, 100, 0);
 
-  auto waveformComboBoxBounds = bounds;
-  waveformComboBoxBounds.removeFromTop(66);
-  waveformComboBoxBounds.removeFromRight(392);
-  waveformComboBoxBounds.removeFromBottom(176);
-  waveformComboBoxBounds.removeFromLeft(16);
-  waveformComboBox.setBounds(waveformComboBoxBounds);
+  //rateSliderBounds.removeFromBottom(110);
+    //SLIDER
+  rateSlider.setBounds(490, 475, 50, 50);
+  rateLabel.setBounds(490, 475, 50, 50);
 
-  auto waveformLabelBounds = bounds;
-  waveformLabelBounds.removeFromTop(48);
 
-  // we make more space here than in Figma to avoid ellipsis insertion
-  waveformLabelBounds.removeFromRight(461);
+  // auto waveformComboBoxBounds = bounds;
+  // waveformComboBoxBounds.removeFromTop(66);
+  // waveformComboBoxBounds.removeFromRight(392);
+  // waveformComboBoxBounds.removeFromBottom(176);
+  // waveformComboBoxBounds.removeFromLeft(16);
+  // waveformComboBox.setBounds(waveformComboBoxBounds);
 
-  waveformLabelBounds.removeFromBottom(206);
-  waveformLabelBounds.removeFromLeft(20);
-
-  waveformLabel.setBounds(waveformLabelBounds);
-
-  auto bypassButtonBounds = bounds;
-  bypassButtonBounds.removeFromTop(66);
-  bypassButtonBounds.removeFromRight(16);
-  bypassButtonBounds.removeFromBottom(176);
-  bypassButtonBounds.removeFromLeft(392);
-  bypassButton.setBounds(bypassButtonBounds);
-
-  auto bypassLabelBounds = bounds;
-  bypassLabelBounds.removeFromTop(48);
+  // auto waveformLabelBounds = bounds;
+  // waveformLabelBounds.removeFromTop(48);
 
   // we make more space here than in Figma to avoid ellipsis insertion
-  bypassLabelBounds.removeFromRight(104);
+  // waveformLabelBounds.removeFromRight(461);
+  //
+  // waveformLabelBounds.removeFromBottom(206);
+  // waveformLabelBounds.removeFromLeft(20);
+  //
+  // waveformLabel.setBounds(waveformLabelBounds);
 
-  bypassLabelBounds.removeFromBottom(206);
-  bypassLabelBounds.removeFromLeft(396);
+  // auto bypassButtonBounds = bounds;
+  // bypassButtonBounds.removeFromTop(66);
+  // bypassButtonBounds.removeFromRight(16);
+  // bypassButtonBounds.removeFromBottom(176);
+  // bypassButtonBounds.removeFromLeft(392);
+  // bypassButton.setBounds(bypassButtonBounds);
 
-  bypassLabel.setBounds(bypassLabelBounds);
+  // auto bypassLabelBounds = bounds;
+  // bypassLabelBounds.removeFromTop(48);
+
+  // we make more space here than in Figma to avoid ellipsis insertion
+  // bypassLabelBounds.removeFromRight(104);
+  //
+  // bypassLabelBounds.removeFromBottom(206);
+  // bypassLabelBounds.removeFromLeft(396);
+  //
+  // bypassLabel.setBounds(bypassLabelBounds);
 }
 }  // namespace tremolo

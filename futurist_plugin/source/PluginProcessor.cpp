@@ -118,7 +118,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   // // For example, if the LFO waveform is the sine, and the user selects
   // // the triangle under bypass ON, they will see a curved triangle slope
   // // on toggling bypass OFF, which is unexpected.
-  // tremolo.setModulationRateHz(parameters.rate, applySmoothing);
+  tremolo.setModulationRateHz(parameters.rate);
   // tremolo.setLfoWaveform(
   //     static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
   //     applySmoothing);

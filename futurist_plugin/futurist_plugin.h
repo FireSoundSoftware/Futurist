@@ -49,3 +49,6 @@ END_JUCE_MODULE_DECLARATION
 #include "include/Tremolo/PluginProcessor.h"
 #include "include/Tremolo/MessageOnClick.h"
 #include "include/Tremolo/PluginEditor.h"
+
+#define WIN_WIDTH 1280
+#define WIN_HEIGHT 720

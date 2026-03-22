@@ -30,18 +30,15 @@ public:
     //
     // // allocate defensively
     // lfoSamples.resize(4u * static_cast<size_t>(expectedMaxFramesPerBlock));
-    std::cout << "START PREPARE" << std::endl;
     lfo.prepare(processSpec);
   }
 
-  // void setModulationRateHz(
-  //     float rateHz,
-  //     ApplySmoothing applySmoothing = ApplySmoothing::yes) noexcept {
-  //   const auto force = applySmoothing == ApplySmoothing::no;
-  //   for (auto& lfo : lfos) {
-  //     lfo.setFrequency(rateHz, force);
-  //   }
-  // }
+  void setModulationRateHz(float rateHz){
+      // ApplySmoothing applySmoothing = ApplySmoothing::yes) noexcept {
+    // const auto force = applySmoothing == ApplySmoothing::no;
+    // for (auto& lfo : lfos)
+      lfo.setFrequency(rateHz);
+  }
   //
   // void setLfoWaveform(LfoWaveform waveform,
   //                     ApplySmoothing applySmoothing = ApplySmoothing::yes) {
@@ -57,7 +54,6 @@ public:
   void process(juce::AudioBuffer<float>& buffer) noexcept {
     // actual updating of the LFO waveform happens in process()
     // to keep setLfoWaveform() idempotent
-    std::cout << "START PROCESS" << std::endl;
     // for each frame
     for (const auto frameIndex : std::views::iota(0, buffer.getNumSamples())) {
 
@@ -68,13 +64,12 @@ public:
         const auto  inputSample = buffer.getSample(channelIndex, frameIndex);
 
         // modulate the sample
-        const auto outputSample = 0.1f * lfoValue;
+        const auto outputSample = 0.1f * lfoValue ;
         std::cout << lfoValue << std::endl;
 
         // set the output sample
         buffer.setSample(channelIndex, frameIndex, outputSample);
       }
-      std::cout << "DONE?" << std::endl;
     }
   }
 
