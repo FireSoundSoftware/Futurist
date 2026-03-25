@@ -23,6 +23,7 @@ class GestureDetector:
     self.volPer = 0
     self.length = 0
     self.volBar = 0
+    self.angle = 0
 
     # Webcam Setup
     self.wCam, self.hCam = 640, 480
@@ -75,7 +76,7 @@ class GestureDetector:
       if current_time > self.prev_time:
         self.recognizer.recognize_async(mp_image, current_time)
         self.prev_time = current_time
-        print("Current gesture", self.current_gesture)
+        # print("Current gesture", self.current_gesture)
       image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
       if results.multi_hand_landmarks:
@@ -108,13 +109,24 @@ class GestureDetector:
             cv2.circle(image, (x1, y1), 15, (255, 255, 255), cv2.FILLED)
             cv2.circle(image, (x2, y2), 15, (255, 255, 255), cv2.FILLED)
             cv2.line(image, (x1, y1), (x2, y2), (0, 255, 0), 3)
+            if abs(x2 - x1)> 0:
+              atan_angle = np.rad2deg(np.arctan((y2 - y1) / (x2 - x1)))
+              if atan_angle < 0:
+                self.angle = atan_angle + 90
+              elif atan_angle > 0:
+                self.angle = atan_angle - 90
 
-            self.length = math.hypot(x2 - x1, y2 - y1)
+            print("angle: ", self.angle)
+            #self.length = math.hypot(x2 - x1, y2 - y1)
             if self.length < 50:
               cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
 
             # Интерполяция расстояния в громкость (0-100)
-            self.volPer = np.interp(self.length, [50, 220], [0, 100])
+            if self.angle > 15 and self.volPer < 100:
+              self.volPer +=1
+            elif self.angle < 15 and self.volPer > 0:
+              self.volPer -=1
+            #self.volPer = np.interp(self.length, [50, 220], [0, 100])
 
 
 
