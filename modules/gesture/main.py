@@ -9,6 +9,10 @@ from mediapipe.tasks.python import vision
 import time
 
 
+
+OP = "Open_Palm"
+CF = "Closed_Fist"
+
 class GestureDetector:
   def __init__(self):
 
@@ -24,6 +28,9 @@ class GestureDetector:
     self.length = 0
     self.volBar = 0
     self.angle = 0
+    self.param_list = [0, 0, 0, 0]
+    self.idx_param = 0
+    self._prev_gesture = ""
 
     # Webcam Setup
     self.wCam, self.hCam = 640, 480
@@ -54,14 +61,29 @@ class GestureDetector:
             min_tracking_confidence=0.5) 
     self.prev_time = 0
 
+  def _switch_param(self):
+    if self.idx_param < len(self.param_list) - 1:
+      self.idx_param+=1
+    else:
+      self.idx_param = 0
+  
+  def detect_switch(self, gesture):
+    detect = False
+    if gesture != "None":
+      if gesture == OP and self._prev_gesture == CF:
+        detect = True
+      self._prev_gesture = gesture
+
+    return detect
+  
+
   def print_result(self, result, output_image, timestamp_ms):
     if result.gestures and len(result.gestures) > 0:
-        # Берем первый жест (самый уверенный)
         gesture_list = result.gestures[0]
         if gesture_list:
-            top_gesture = gesture_list[0]  # Первый Category в списке
+            top_gesture = gesture_list[0]  
             self.current_gesture = top_gesture
-            #print(f"Жест: {top_gesture.category_name} (score: {top_gesture.score:.2f})")
+
 
   def run(self):
     while self.cam.isOpened():
@@ -91,6 +113,11 @@ class GestureDetector:
 
       # Finding position of Hand landmarks
       if self.current_gesture is not None:
+        if(self.detect_switch(self.current_gesture.category_name)):
+          self._switch_param()
+          print("idx param", self.idx_param)
+
+
         if self.current_gesture.category_name == "Pointing_Up":
           lmList = []
           if results.multi_hand_landmarks:
@@ -116,17 +143,18 @@ class GestureDetector:
               elif atan_angle > 0:
                 self.angle = atan_angle - 90
 
-            print("angle: ", self.angle)
+            # print("angle: ", self.angle)
             #self.length = math.hypot(x2 - x1, y2 - y1)
             if self.length < 50:
               cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
 
-            # Интерполяция расстояния в громкость (0-100)
-            if self.angle > 15 and self.volPer < 100:
-              self.volPer +=1
-            elif self.angle < 15 and self.volPer > 0:
-              self.volPer -=1
+
+            if self.angle > 15 and self.param_list[self.idx_param] < 100:
+              self.param_list[self.idx_param]+=1
+            elif self.angle < 15 and self.param_list[self.idx_param] > 0:
+              self.param_list[self.idx_param]-=1
             #self.volPer = np.interp(self.length, [50, 220], [0, 100])
+            print(self.param_list)
 
 
 
