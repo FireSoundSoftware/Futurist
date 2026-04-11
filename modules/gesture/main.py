@@ -3,6 +3,12 @@ import mediapipe as mp
 import math
 import numpy as np
 import osascript  # pip install osascript
+import os
+from multiprocessing import shared_memory
+import sysv_ipc
+import struct
+import sys
+
 
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
@@ -13,10 +19,43 @@ import time
 OP = "Open_Palm"
 CF = "Closed_Fist"
 
-class GestureDetector:
-  def __init__(self):
+SHM_NAME = "MySharedData"
+SHM_SIZE = 128  # float(4)+float(4)+float(4)+float(4)+padding
 
-# solution APIs
+class CShmManager : 
+    def __init__( self ) : 
+        self.shm = sysv_ipc.SharedMemory(key=1234, flags=sysv_ipc.IPC_CREAT, mode=0o666, size=1024)
+        self.data = 0
+    def doReadShm( self , key, size ) : 
+        memory = sysv_ipc.SharedMemory( key=key)
+        memory_value = memory.read()
+        print ("I got:  ",memory_value.decode())
+
+    def doWriteShm(self,key,size):
+        text = "Python reply " + str(self.data)
+        self.shm.write(text.encode())
+        print("I sent: ", text,"\n")
+        self.data+=1
+
+    # def remove(self):
+    #     print("remove memory")
+    #     self.shm.detach()
+    #     self.shm.remove()
+    
+    def __del__(self):
+        self.shm.detach()
+        self.shm.remove()
+
+        
+
+
+class GestureDetector:
+  def __init__(self): 
+    #shared memory
+    self.shm = CShmManager()
+    self.key_write = 1234
+    self.size_write = 1024
+
     self.mp_drawing = mp.solutions.drawing_utils
     self.mp_drawing_styles = mp.solutions.drawing_styles
     self.mp_hands = mp.solutions.hands
@@ -60,6 +99,17 @@ class GestureDetector:
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) 
     self.prev_time = 0
+  
+  def _do_write_shm(self, key, size, data):
+    buf = bytearray(struct.calcsize('<ffff'))
+    self.shm.doWriteShm(self.key_write, self.size_write)
+    # struct.pack_into('<ffff', buf, 0, data[0], data[1], data[2], data[3])
+    # self.shm.write(buf)
+    # print("write done")
+    # shm.detach()
+    # print("I sent: ", text,"\n")
+
+
 
   def _switch_param(self):
     if self.idx_param < len(self.param_list) - 1:
@@ -149,17 +199,15 @@ class GestureDetector:
               cv2.line(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
 
 
-            if self.angle > 15 and self.param_list[self.idx_param] < 100:
-              self.param_list[self.idx_param]+=1
+            if self.angle > 15 and self.param_list[self.idx_param] < 1:
+              self.param_list[self.idx_param]+=0.01
             elif self.angle < 15 and self.param_list[self.idx_param] > 0:
-              self.param_list[self.idx_param]-=1
+              self.param_list[self.idx_param]-=0.01
             #self.volPer = np.interp(self.length, [50, 220], [0, 100])
             print(self.param_list)
-
-
-
             # Volume Bar
             self.volBar = np.interp(self.length, [50, 220], [400, 150])
+      self._do_write_shm(1234, 1024, self.param_list)
       cv2.rectangle(image, (50, 150), (85, 400), (0, 255, 0), 3)
       cv2.rectangle(image, (50, int(self.volBar)), (85, 400), (255, 0, 0), cv2.FILLED)
       cv2.putText(image, f'{int(self.volPer)} %', (40, 450), cv2.FONT_HERSHEY_COMPLEX,
@@ -170,6 +218,7 @@ class GestureDetector:
         break
 
     self.cam.release()
+    self.shm.remove()
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

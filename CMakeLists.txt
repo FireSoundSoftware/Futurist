@@ -5,6 +5,9 @@
 # $ cmake --version
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
+find_package(Boost 1.90 REQUIRED)
+
+
 # Enable setting CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
 set(CMAKE_POLICY_DEFAULT_CMP0141        NEW      CACHE STRING "" FORCE)
 
@@ -119,6 +122,10 @@ target_compile_definitions(futurist_plugin
   INTERFACE
     PLUGIN_NAME="${PLUGIN_NAME}"
 )
+
+target_link_libraries(futurist_plugin INTERFACE Boost::headers)
+target_include_directories(futurist_plugin INTERFACE ${Boost_INCLUDE_DIRS})
+
 
 # Enables strict C++ warnings.
 target_compile_options(futurist_plugin INTERFACE "${PROJECT_WARNINGS_CXX}")

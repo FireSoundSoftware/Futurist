@@ -1,10 +1,16 @@
  #pragma once
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <cstring>
+#include <thread>
+
 
 namespace tremolo {
 class PluginProcessor : public juce::AudioProcessor {
 public:
   PluginProcessor();
-
+  ~PluginProcessor();
+  void worker_shm();
   void prepareToPlay(double sampleRate, int expectedMaxFramesPerBlock) override;
 
   void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
@@ -47,6 +53,10 @@ private:
   Tremolo tremolo;
   BypassTransitionSmoother bypassTransitionSmoother;
   std::atomic<double> currentSampleRate{0.};
+  std::thread _shm_thread;
+  bool _shm_thread_running{false};
+  char* data;
+  std::size_t size;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
