@@ -8,6 +8,8 @@ from multiprocessing import shared_memory
 import sysv_ipc
 import struct
 import sys
+import signal
+
 
 
 from mediapipe.tasks import python
@@ -26,7 +28,7 @@ class CShmManager :
     def __init__( self ) : 
         self.shm = sysv_ipc.SharedMemory(key=1234, flags=sysv_ipc.IPC_CREAT, mode=0o666, size=1024)
         self.data = 0
-    def doReadShm( self , key, size ) : 
+    def doReadShm( self , key, size) : 
         memory = sysv_ipc.SharedMemory( key=key)
         memory_value = memory.read()
         print ("I got:  ",memory_value.decode())
@@ -37,17 +39,13 @@ class CShmManager :
         print("I sent: ", text,"\n")
         self.data+=1
 
-    # def remove(self):
-    #     print("remove memory")
-    #     self.shm.detach()
-    #     self.shm.remove()
-    
     def __del__(self):
-        self.shm.detach()
-        self.shm.remove()
-
-        
-
+      print("CALLED DEL FROM CSHMMANAGER")
+      self._remove()
+    
+    def _remove(self):
+      self.shm.detach()
+      self.shm.remove()
 
 class GestureDetector:
   def __init__(self): 
@@ -99,6 +97,12 @@ class GestureDetector:
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) 
     self.prev_time = 0
+  
+  def __del__(self):
+    print("CALLED DEL FROM GESTURE DETECTOR")
+    self.shm._remove()
+    
+
   
   def _do_write_shm(self, key, size, data):
     buf = bytearray(struct.calcsize('<ffff'))
@@ -217,10 +221,22 @@ class GestureDetector:
       if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-    self.cam.release()
-    self.shm.remove()
+    # self.cam.release()
+    self.shm._remove()
     cv2.destroyAllWindows()
 
+
+def cleanup_handler(sig, frame):
+  print("\nCtrl+C detected. Cleaning...")
+  detector.shm._remove()
+  sys.exit(0)
+
+def main():
+    global detector
+    detector = GestureDetector()
+    
+    signal.signal(signal.SIGINT, cleanup_handler)  # Ctrl+C
+    detector.run()
+
 if __name__ == "__main__":
-    d = GestureDetector()
-    d.run()
+  main()
