@@ -33,8 +33,8 @@ class CShmManager :
         memory_value = memory.read()
         print ("I got:  ",memory_value.decode())
 
-    def doWriteShm(self,key,size):
-        text = "Python reply " + str(self.data)
+    def doWriteShm(self,key,size, data):
+        text = "Python reply " + str(data)
         self.shm.write(text.encode())
         print("I sent: ", text,"\n")
         self.data+=1
@@ -106,7 +106,7 @@ class GestureDetector:
   
   def _do_write_shm(self, key, size, data):
     buf = bytearray(struct.calcsize('<ffff'))
-    self.shm.doWriteShm(self.key_write, self.size_write)
+    self.shm.doWriteShm(self.key_write, self.size_write, data)
     # struct.pack_into('<ffff', buf, 0, data[0], data[1], data[2], data[3])
     # self.shm.write(buf)
     # print("write done")
@@ -169,7 +169,7 @@ class GestureDetector:
       if self.current_gesture is not None:
         if(self.detect_switch(self.current_gesture.category_name)):
           self._switch_param()
-          print("idx param", self.idx_param)
+          # print("idx param", self.idx_param)
 
 
         if self.current_gesture.category_name == "Pointing_Up":
@@ -208,7 +208,7 @@ class GestureDetector:
             elif self.angle < 15 and self.param_list[self.idx_param] > 0:
               self.param_list[self.idx_param]-=0.01
             #self.volPer = np.interp(self.length, [50, 220], [0, 100])
-            print(self.param_list)
+            # print(self.param_list)
             # Volume Bar
             self.volBar = np.interp(self.length, [50, 220], [400, 150])
       self._do_write_shm(1234, 1024, self.param_list)
