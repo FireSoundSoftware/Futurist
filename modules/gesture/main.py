@@ -35,8 +35,11 @@ class CShmManager :
 
     def doWriteShm(self,key,size, data):
         text = "Python reply " + str(data)
-        self.shm.write(text.encode())
-        print("I sent: ", text,"\n")
+        s = struct.pack('>ffff', *data)
+        self.shm.write(s)
+        # print("I sent: ", text,"\n")
+        print(data)
+        print("sended bytes", s)
         self.data+=1
 
     def __del__(self):
@@ -106,6 +109,7 @@ class GestureDetector:
   
   def _do_write_shm(self, key, size, data):
     buf = bytearray(struct.calcsize('<ffff'))
+
     self.shm.doWriteShm(self.key_write, self.size_write, data)
     # struct.pack_into('<ffff', buf, 0, data[0], data[1], data[2], data[3])
     # self.shm.write(buf)

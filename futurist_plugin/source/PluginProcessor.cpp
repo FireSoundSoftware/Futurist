@@ -82,16 +82,44 @@ void CSharedMemroy::copyToSharedMemroy(std::string str )
 
   void CSharedMemroy::readDataSharedMemory(int key)
 {
-  char* data_ = (char*)shmat(shmget(key, 0, 0666), NULL, 0);
-  if (data_ == (char*)-1) {
+  uint8_t* data = (uint8_t*)shmat(shmget(key, 0, 0666), NULL, 0);
+  if (data == (uint8_t*)-1) {
     std::cout << "No shared memory (deleted?)" << std::endl;
     return;
   }
-  char data_got[1024];
-  memcpy(data_got, data_, 1023);
-  data_got[1023] = 0;  // \0 на всякий
-  std::cout << "I got: " << data_got << std::endl;
-  shmdt(data_);
+  uint32_t param1_u = (uint32_t(data[0])  << 24) |
+                      (uint32_t(data[1])  << 16) |
+                      (uint32_t(data[2])  << 8)  |
+                      (uint32_t(data[3]));
+
+  uint32_t param2_u = (uint32_t(data[4])  << 24) |
+                      (uint32_t(data[5])  << 16) |
+                      (uint32_t(data[6])  << 8)  |
+                      (uint32_t(data[7]));
+
+  uint32_t param3_u = (uint32_t(data[8])  << 24) |
+                      (uint32_t(data[9])  << 16) |
+                      (uint32_t(data[10]) << 8)  |
+                      (uint32_t(data[11]));
+
+  uint32_t param4_u = (uint32_t(data[12]) << 24) |
+                      (uint32_t(data[13]) << 16) |
+                      (uint32_t(data[14]) << 8)  |
+                      (uint32_t(data[15]));
+
+  float param1, param2, param3, param4;
+
+  std::memcpy(&param1, &param1_u, sizeof(param1));
+  std::memcpy(&param2, &param2_u, sizeof(param2));
+  std::memcpy(&param3, &param3_u, sizeof(param3));
+  std::memcpy(&param4, &param4_u, sizeof(param4));
+
+  std::cout << "I got: " << param1 << " "
+                        << param2 << " "
+                        << param3 << " "
+                        << param4 << std::endl;
+
+  shmdt(data);
 }
 
 void CSharedMemroy::close()
