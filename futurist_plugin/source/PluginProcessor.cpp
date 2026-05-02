@@ -12,164 +12,29 @@ Date: 2023.05.12
 #include <unistd.h>
 #include <string>
 #include <iostream>
+// #include <include/Tremolo/CSharedMemory.h>
 
 
 
 namespace tremolo {
 
-
-class CSharedMemroy
-{
-private:
-  int m_shmid;
-  key_t m_key;
-  char *m_shared_memory;
-  char *read_data;
-
-public:
-    ~CSharedMemroy();
-  void read_data_in_mem();
-  void setShmId( int key );
-  int getShmId();
-  void setKey( key_t key );
-  void setupSharedMemory( int size );
-  void attachSharedMemory();
-  void copyToSharedMemroy( std::string str );
-  void readDataSharedMemory(int m_shmid, std::vector<float>& buf);
-  void close();
-};
-
-CSharedMemroy::~CSharedMemroy(){
-  this->close();
-  std::cout << "~CSharedMemory called" << std::endl;
-}
-
-void CSharedMemroy::setShmId( int id )
-{
-  m_shmid = id;
-}
-
-void CSharedMemroy::setKey( key_t key )
-{
-  m_key = key;
-}
-
-void CSharedMemroy::setupSharedMemory( int size )
-{
-  // Setup shared memory, 11 is the size
-  if ( ( m_shmid = shmget(m_key, size , IPC_CREAT | 0666)) < 0 )
-  {
-    printf("Error getting shared memory id");
-    exit( 1 );
-  }
-}
-
-void CSharedMemroy::attachSharedMemory()
-{
-  // Attached shared memory
-  if ( ( m_shared_memory = (char*)(shmat( m_shmid , NULL , 0 ))) == (char *)-1)
-  {
-    printf("Error attaching shared memory id");
-    exit(1);
-  }
-}
-
-void CSharedMemroy::copyToSharedMemroy(std::string str )
-{
-  // copy string to shared memory
-  memcpy( m_shared_memory, str.c_str() , str.size() );
-  sleep(2);
-}
-
-void CSharedMemroy::readDataSharedMemory(int key, std::vector<float>& buf){
-  uint8_t* data = (uint8_t*)shmat(shmget(key, 0, 0666), NULL, 0);
-  if (data == (uint8_t*)-1) {
-    std::cout << "No shared memory (deleted?)" << std::endl;
-    return;
-  }
-  uint32_t param1_u = (uint32_t(data[0])  << 24) |
-                      (uint32_t(data[1])  << 16) |
-                      (uint32_t(data[2])  << 8)  |
-                      (uint32_t(data[3]));
-
-  uint32_t param2_u = (uint32_t(data[4])  << 24) |
-                      (uint32_t(data[5])  << 16) |
-                      (uint32_t(data[6])  << 8)  |
-                      (uint32_t(data[7]));
-
-  uint32_t param3_u = (uint32_t(data[8])  << 24) |
-                      (uint32_t(data[9])  << 16) |
-                      (uint32_t(data[10]) << 8)  |
-                      (uint32_t(data[11]));
-
-  uint32_t param4_u = (uint32_t(data[12]) << 24) |
-                      (uint32_t(data[13]) << 16) |
-                      (uint32_t(data[14]) << 8)  |
-                      (uint32_t(data[15]));
-
-  // float param1, param2, param3, param4;
-
-  std::memcpy(&buf[0], &param1_u, sizeof(float));
-  std::memcpy(&buf[1], &param2_u, sizeof(float));
-  std::memcpy(&buf[2], &param3_u, sizeof(float));
-  std::memcpy(&buf[3], &param4_u, sizeof(float));
-
-  std::cout << "I gottta: " << buf[0] << " "
-                         << buf[1]<< " "
-                         << buf[2] << " "
-                         << buf[3] << std::endl;
-
-  shmdt(data);
-}
-
-void CSharedMemroy::close()
-{
-  //    sleep(3);
-  // Detach and remove shared memory
-  void* shmdt( void *m_shmid );
-  shmctl( m_shmid , IPC_RMID, NULL );
-}
-
 PluginProcessor::PluginProcessor()
     : AudioProcessor(
           BusesProperties()
               .withInput("Input", juce::AudioChannelSet::stereo(), true)
-              .withOutput("Output", juce::AudioChannelSet::stereo(), true)) {
+              .withOutput("Output", juce::AudioChannelSet::stereo(), true))
+    , _shm(std::make_unique<CSharedMemroy>()){
 
     _shm_thread = std::thread(&PluginProcessor::worker_shm, this);
-
-
-
-
-
-
-
-
-
 
 }
 void PluginProcessor::worker_shm() {
   _shm_thread_running = true;
-  auto n = std::make_unique<CSharedMemroy>();
+  int id_read = 1234;
+  _shm->setKey(id_read);
   while (_shm_thread_running) {
     std::this_thread::sleep_for(std::chrono::milliseconds(40));
-
-    // cout << "\nI sent: " << cpp_send << endl;
-    // const char* cpp_ = cpp_send.c_str();
-    // m.setKey(777);
-    // m.setupSharedMemory(12);
-    // m.attachSharedMemory();
-    // m.copyToSharedMemroy((char*)(cpp_));
-    // m.close();
-
-    // get the shared memory ID
-    // int id_read = 1234;
-    // n.setKey(id_read);
-    // n.readDataSharedMemory(id_read);
-
-    int id_read = 1234;
-    n->setKey(id_read);
-    n->readDataSharedMemory(id_read, _param_list);
+    _shm->readDataSharedMemory(id_read, _param_list);
   }
 }
 
@@ -268,23 +133,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     tremolo.setModulationRateHz(parameters.rate);
   }
   tremolo.setVolume(parameters.volume);
-  // tremolo.setLfoWaveform(
-  //     static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
-  //     applySmoothing);
-  //
-  // bypassTransitionSmoother.setBypass(parameters.bypassed);
-  //
-  // if (bypassedAndNotTransitioning) {
-  //   // avoid processing if the plugin is fully bypassed
-  //   return;
-  // }
-  //
-  // bypassTransitionSmoother.setDryBuffer(buffer);
-  //
-  // // apply tremolo
   tremolo.process(buffer);
-  //
-  // bypassTransitionSmoother.mixToWetBuffer(buffer);
 }
 
 bool PluginProcessor::hasEditor() const {
@@ -302,26 +151,7 @@ void PluginProcessor::getStateInformation(juce::MemoryBlock& destData) {
 }
 
 void PluginProcessor::setStateInformation(const void* data, int sizeInBytes) {
-  // juce::MemoryInputStream inputStream{data, static_cast<size_t>(sizeInBytes),
-  //                                     false};
-  // const auto result = JsonSerializer::deserialize(inputStream, parameters);
-  //
-  // if (result.failed()) {
-  //   // Notify the user that reading parameters failed.
-  //   // Currently, we just write the error message to the standard error stream.
-  //   DBG(result.getErrorMessage());
-  // }
-  //
-  // // Skip smoothing to avoid LFO waveform morphing
-  // // when loading a project or a preset.
-  // // For example, the default LFO waveform is the sine. If the project or preset
-  // // has the triangle selected, the user will see a curved triangle slope
-  // // on load, which is unexpected.
-  // bypassTransitionSmoother.setBypassForced(parameters.bypassed);
-  // tremolo.setLfoWaveform(
-  //     static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
-  //     ApplySmoothing::no);
-  // tremolo.setModulationRateHz(parameters.rate, ApplySmoothing::no);
+
 }
 
 Parameters& PluginProcessor::getParameterRefs() noexcept {

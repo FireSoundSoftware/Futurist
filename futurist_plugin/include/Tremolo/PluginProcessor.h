@@ -4,6 +4,7 @@
 #include <cstring>
 #include <thread>
 #include <vector>
+#include "CSharedMemory.h"
 
 
 namespace tremolo {
@@ -59,6 +60,7 @@ private:
   char* data;
   std::size_t size;
   std::vector<float> _param_list{4};
+  std::unique_ptr<CSharedMemroy> _shm{nullptr};
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };
