@@ -38,8 +38,8 @@ class CShmManager :
         s = struct.pack('>ffff', *data)
         self.shm.write(s)
         # print("I sent: ", text,"\n")
-        print(data)
-        print("sended bytes", s)
+        # print(data)
+        # print("sended bytes", s)
         self.data+=1
 
     def __del__(self):
@@ -86,7 +86,7 @@ class GestureDetector:
     self.current_gesture = None
 
 
-    model_path = 'model/gesture_recognizer.task'
+    model_path = 'modules/gesture/model/gesture_recognizer.task'
     self.options = self.GestureRecognizerOptions(
         base_options=self.BaseOptions(model_asset_path=model_path),
         running_mode=self.VisionRunningMode.LIVE_STREAM,

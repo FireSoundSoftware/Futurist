@@ -3,6 +3,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <cstring>
 #include <thread>
+#include <vector>
 
 
 namespace tremolo {
@@ -57,6 +58,7 @@ private:
   bool _shm_thread_running{false};
   char* data;
   std::size_t size;
+  std::vector<float> _param_list{4};
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginProcessor)
 };

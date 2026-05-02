@@ -14,6 +14,7 @@ Date: 2023.05.12
 #include <iostream>
 
 
+
 namespace tremolo {
 
 
@@ -34,7 +35,7 @@ public:
   void setupSharedMemory( int size );
   void attachSharedMemory();
   void copyToSharedMemroy( std::string str );
-  void readDataSharedMemory(int m_shmid);
+  void readDataSharedMemory(int m_shmid, std::vector<float>& buf);
   void close();
 };
 
@@ -80,8 +81,7 @@ void CSharedMemroy::copyToSharedMemroy(std::string str )
   sleep(2);
 }
 
-  void CSharedMemroy::readDataSharedMemory(int key)
-{
+void CSharedMemroy::readDataSharedMemory(int key, std::vector<float>& buf){
   uint8_t* data = (uint8_t*)shmat(shmget(key, 0, 0666), NULL, 0);
   if (data == (uint8_t*)-1) {
     std::cout << "No shared memory (deleted?)" << std::endl;
@@ -107,17 +107,17 @@ void CSharedMemroy::copyToSharedMemroy(std::string str )
                       (uint32_t(data[14]) << 8)  |
                       (uint32_t(data[15]));
 
-  float param1, param2, param3, param4;
+  // float param1, param2, param3, param4;
 
-  std::memcpy(&param1, &param1_u, sizeof(param1));
-  std::memcpy(&param2, &param2_u, sizeof(param2));
-  std::memcpy(&param3, &param3_u, sizeof(param3));
-  std::memcpy(&param4, &param4_u, sizeof(param4));
+  std::memcpy(&buf[0], &param1_u, sizeof(float));
+  std::memcpy(&buf[1], &param2_u, sizeof(float));
+  std::memcpy(&buf[2], &param3_u, sizeof(float));
+  std::memcpy(&buf[3], &param4_u, sizeof(float));
 
-  std::cout << "I got: " << param1 << " "
-                        << param2 << " "
-                        << param3 << " "
-                        << param4 << std::endl;
+  std::cout << "I gottta: " << buf[0] << " "
+                         << buf[1]<< " "
+                         << buf[2] << " "
+                         << buf[3] << std::endl;
 
   shmdt(data);
 }
@@ -169,7 +169,7 @@ void PluginProcessor::worker_shm() {
 
     int id_read = 1234;
     n->setKey(id_read);
-    n->readDataSharedMemory(id_read);
+    n->readDataSharedMemory(id_read, _param_list);
   }
 }
 
@@ -257,37 +257,16 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const {
 
 void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                    juce::MidiBuffer& midiMessages) {
-  // std::cout << "ProcessBlock" << std::endl;
-  // juce::ignoreUnused(midiMessages);
-  //
-  // juce::ScopedNoDenormals noDenormals;
-  // const auto totalNumInputChannels = getTotalNumInputChannels();
-  // const auto totalNumOutputChannels = getTotalNumOutputChannels();
-  //
-  // // In case we have more outputs than inputs, this code clears any output
-  // // channels that didn't contain input data, (because these aren't
-  // // guaranteed to be empty - they may contain garbage).
-  // // This is here to avoid people getting screaming feedback
-  // // when they first compile a plugin, but obviously you don't need to keep
-  // // this code if your algorithm always overwrites all the output channels.
-  // for (const auto channelToClear :
-  //      std::views::iota(totalNumInputChannels, totalNumOutputChannels)) {
-  //   buffer.clear(channelToClear, 0, buffer.getNumSamples());
-  // }
+  bool gesture_control = true;
 
-  // const auto bypassedAndNotTransitioning =
-  //     parameters.bypassed.get() && !bypassTransitionSmoother.isTransitioning();
-  // const auto applySmoothing =
-  //     bypassedAndNotTransitioning ? ApplySmoothing::no : ApplySmoothing::yes;
-  //
-  // // update the parameters
-  // // Skip smoothing if fully bypassed to avoid LFO waveform morphing
-  // // when parameters change under bypass ON.
-  // // For example, if the LFO waveform is the sine, and the user selects
-  // // the triangle under bypass ON, they will see a curved triangle slope
-  // // on toggling bypass OFF, which is unexpected.
   parameters.volume = 3;
-  tremolo.setModulationRateHz(parameters.rate);
+
+  if (gesture_control) {
+    parameters.rate = _param_list[0] * 440;
+    tremolo.setModulationRateHz(_param_list[0] * 440);
+  }else {
+    tremolo.setModulationRateHz(parameters.rate);
+  }
   tremolo.setVolume(parameters.volume);
   // tremolo.setLfoWaveform(
   //     static_cast<Tremolo::LfoWaveform>(parameters.waveform.getIndex()),
