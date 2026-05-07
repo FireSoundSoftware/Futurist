@@ -2,6 +2,16 @@ namespace tremolo {
 PluginEditor::PluginEditor(PluginProcessor& p)
     : AudioProcessorEditor(&p),
       waveformAttachment{p.getParameterRefs().waveform, waveformComboBox},
+      reverbAttachment{p.getParameterRefs().reverb, reverbSlider},
+      presenceAttachment{p.getParameterRefs().presence, presenceSlider},
+      bassAttachment{p.getParameterRefs().bass, bassSlider},
+      middleAttachment{p.getParameterRefs().middle, middleSlider},
+      trebleAttachment{p.getParameterRefs().treble, trebleSlider},
+      masterAttachment{p.getParameterRefs().master, masterSlider},
+      preampAttachment{p.getParameterRefs().preamp, preampSlider},
+
+      //old realization
+      mousePosLabel("MousePosLabel", "Mouse: 0, 0"), // <-- добавь это
       rateAttachment{p.getParameterRefs().rate, rateSlider},
       volumeAttachment{p.getParameterRefs().volume, volumeSlider},
       bypassAttachment{p.getParameterRefs().bypassed, bypassButton},
@@ -22,7 +32,7 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   addAndMakeVisible(logo);
 
   const auto sideFontColor = juce::Colour{0xFF6EA0C7};
-
+  setInterceptsMouseClicks(true, true);
   waveformLabel.setJustificationType(juce::Justification::left);
   waveformLabel.setMinimumHorizontalScale(1.f);
   waveformLabel.setFont(lookAndFeel.getSideLabelsFont());
@@ -32,10 +42,11 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   waveformComboBox.addItemList(p.getParameterRefs().waveform.choices, 1);
   waveformAttachment.sendInitialUpdate();
   addAndMakeVisible(waveformComboBox);
-  //rateSlider
+
+//rateSlider
   rateSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
   rateSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
-                             true, 0, 0);
+                        true, 0, 0);
   rateSlider.setTextValueSuffix(" Hz");
   rateSlider.setPopupDisplayEnabled(true, true, this);
   addAndMakeVisible(rateSlider);
@@ -44,6 +55,101 @@ PluginEditor::PluginEditor(PluginProcessor& p)
   rateLabel.setInterceptsMouseClicks(false, false);
   rateLabel.setFont(lookAndFeel.getRateLabelFont());
   addAndMakeVisible(rateLabel);
+
+  //reverbSlider
+  reverbSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  reverbSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  reverbSlider.setTextValueSuffix(" Hz");
+  reverbSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(reverbSlider);
+  //reverbLabel
+  reverbLabel.setJustificationType(juce::Justification::centred);
+  reverbLabel.setInterceptsMouseClicks(false, false);
+  reverbLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(reverbLabel);
+
+  //presenceSlider
+  presenceSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  presenceSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  presenceSlider.setTextValueSuffix(" Hz");
+  presenceSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(presenceSlider);
+  //presenceLabel
+  presenceLabel.setJustificationType(juce::Justification::centred);
+  presenceLabel.setInterceptsMouseClicks(false, false);
+  presenceLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(presenceLabel);
+
+  //bassSlider
+  bassSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  bassSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  bassSlider.setTextValueSuffix(" Hz");
+  bassSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(bassSlider);
+  //bassLabel
+  bassLabel.setJustificationType(juce::Justification::centred);
+  bassLabel.setInterceptsMouseClicks(false, false);
+  bassLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(bassLabel);
+
+  //middleSlider
+  middleSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  middleSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  middleSlider.setTextValueSuffix(" Hz");
+  middleSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(middleSlider);
+  //middleLabel
+  middleLabel.setJustificationType(juce::Justification::centred);
+  middleLabel.setInterceptsMouseClicks(false, false);
+  middleLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(middleLabel);
+
+  //trebleSlider
+  trebleSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  trebleSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  trebleSlider.setTextValueSuffix(" Hz");
+  trebleSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(trebleSlider);
+  //trebleLabel
+  trebleLabel.setJustificationType(juce::Justification::centred);
+  trebleLabel.setInterceptsMouseClicks(false, false);
+  trebleLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(trebleLabel);
+
+  //masterSlider
+  masterSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  masterSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  masterSlider.setTextValueSuffix(" Hz");
+  masterSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(masterSlider);
+  //masterLabel
+  masterLabel.setJustificationType(juce::Justification::centred);
+  masterLabel.setInterceptsMouseClicks(false, false);
+  masterLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(masterLabel);
+
+
+  //preampSlider
+  preampSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
+  preampSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox,
+                             true, 0, 0);
+  preampSlider.setTextValueSuffix(" Hz");
+  preampSlider.setPopupDisplayEnabled(true, true, this);
+  addAndMakeVisible(preampSlider);
+  //preampLabel
+  preampLabel.setJustificationType(juce::Justification::centred);
+  preampLabel.setInterceptsMouseClicks(false, false);
+  preampLabel.setFont(lookAndFeel.getRateLabelFont());
+  addAndMakeVisible(preampLabel);
+
+
+
 
   //volumeSlider
   volumeSlider.setSliderStyle(juce::Slider::SliderStyle::Rotary);
@@ -82,6 +188,13 @@ PluginEditor::PluginEditor(PluginProcessor& p)
 
   // Make sure that before the constructor has finished, you've set the
   // editor's size to whatever you need it to be.
+
+  mousePosLabel.setJustificationType(juce::Justification::topRight);
+  mousePosLabel.setFont(juce::Font{12.0f});
+  mousePosLabel.setColour(juce::Label::textColourId, juce::Colours::white);
+  mousePosLabel.setInterceptsMouseClicks(false, false);
+  addAndMakeVisible(mousePosLabel);
+
   setSize(WIN_WIDTH, WIN_HEIGHT);
 }
 
@@ -96,56 +209,53 @@ void PluginEditor::resized() {
 
   logo.setBounds({16, 16, 105, 24});
 
-  // auto lfoVisualizerBounds = bounds.reduced(18, 27);
-  // lfoVisualizerBounds.removeFromTop(122);
-  // lfoVisualizer.setBounds(lfoVisualizerBounds);
-
-  //auto rateSliderBounds = bounds.reduced(10, 10, 100, 0);
-
-  //rateSliderBounds.removeFromBottom(110);
-    //SLIDER
+  //SLIDER
   //rateSlider
-  rateSlider.setBounds(490, 475, 50, 50);
-  rateLabel.setBounds(490, 475, 50, 50);
+  int x = 490;
+  int delta = 74;
+  rateSlider.setBounds(290, 475, 50, 50);
+  rateLabel.setBounds(290, 475, 50, 50);
+  //reverbSlider
+  reverbSlider.setBounds(390, 475, 50, 50);
+  reverbLabel.setBounds(390, 475, 50, 50);
+    //presenceSlider
+  presenceSlider.setBounds(x, 475, 50, 50);
+  presenceLabel.setBounds(x, 475, 50, 50);
+      //bassSlider
+  bassSlider.setBounds(x+delta, 475, 50, 50);
+  bassLabel.setBounds(x+delta, 475, 50, 50);
+    //middleSlider
+  middleSlider.setBounds(x+2*delta, 475, 50, 50);
+  middleLabel.setBounds(x+2*delta, 475, 50, 50);
+    //trebleSlider
+  trebleSlider.setBounds(x+3*delta, 475, 50, 50);
+  trebleLabel.setBounds(x+3*delta, 475, 50, 50);
+    //masterSlider
+  masterSlider.setBounds(x+4*delta, 475, 50, 50);
+  masterLabel.setBounds(x+4*delta, 475, 50, 50);
+    //preampSlider
+  preampSlider.setBounds(x+5*delta, 475, 50, 50);
+  preampLabel.setBounds(x+5*delta, 475, 50, 50);
+
+
   //volumeSlider
-  volumeSlider.setBounds(790, 475, 50, 50);
-  volumeLabel.setBounds(790, 475, 50, 50);
+  volumeSlider.setBounds(x+6*delta, 475, 50, 50);
+  volumeLabel.setBounds(x+6*delta, 475, 50, 50);
 
 
-  // auto waveformComboBoxBounds = bounds;
-  // waveformComboBoxBounds.removeFromTop(66);
-  // waveformComboBoxBounds.removeFromRight(392);
-  // waveformComboBoxBounds.removeFromBottom(176);
-  // waveformComboBoxBounds.removeFromLeft(16);
-  // waveformComboBox.setBounds(waveformComboBoxBounds);
 
-  // auto waveformLabelBounds = bounds;
-  // waveformLabelBounds.removeFromTop(48);
 
-  // we make more space here than in Figma to avoid ellipsis insertion
-  // waveformLabelBounds.removeFromRight(461);
-  //
-  // waveformLabelBounds.removeFromBottom(206);
-  // waveformLabelBounds.removeFromLeft(20);
-  //
-  // waveformLabel.setBounds(waveformLabelBounds);
 
-  // auto bypassButtonBounds = bounds;
-  // bypassButtonBounds.removeFromTop(66);
-  // bypassButtonBounds.removeFromRight(16);
-  // bypassButtonBounds.removeFromBottom(176);
-  // bypassButtonBounds.removeFromLeft(392);
-  // bypassButton.setBounds(bypassButtonBounds);
 
-  // auto bypassLabelBounds = bounds;
-  // bypassLabelBounds.removeFromTop(48);
 
-  // we make more space here than in Figma to avoid ellipsis insertion
-  // bypassLabelBounds.removeFromRight(104);
-  //
-  // bypassLabelBounds.removeFromBottom(206);
-  // bypassLabelBounds.removeFromLeft(396);
-  //
-  // bypassLabel.setBounds(bypassLabelBounds);
+  mousePosLabel.setBounds(bounds.reduced(10).removeFromTop(24));  // 10px от 
+}
+
+void PluginEditor::mouseMove(const juce::MouseEvent& e)
+{
+    mousePosLabel.setText(
+        juce::String("Mouse: ") + juce::String(e.x) + ", " + juce::String(e.y),
+        juce::dontSendNotification
+    );
 }
 }  // namespace tremolo

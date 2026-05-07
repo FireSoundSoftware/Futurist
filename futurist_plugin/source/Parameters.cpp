@@ -52,7 +52,19 @@ juce::AudioParameterChoice& createWaveformParameter(
 }  // namespace
 
 Parameters::Parameters(juce::AudioProcessor& processor)
-    : rate{createModulationRateParameter(processor)},
+    :
+      reverb{createModulationRateParameter(processor)},
+      presence{createModulationRateParameter(processor)},
+      bass{createModulationRateParameter(processor)},
+      middle{createModulationRateParameter(processor)},
+      treble{createModulationRateParameter(processor)},
+      master{createModulationRateParameter(processor)},
+      preamp{createModulationRateParameter(processor)},
+
+
+
+      //old realization
+      rate{createModulationRateParameter(processor)},
       volume{createVolumeParameter(processor)},
       bypassed{createBypassedParameter(processor)},
       waveform{createWaveformParameter(processor)} {}
