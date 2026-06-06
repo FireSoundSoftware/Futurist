@@ -124,14 +124,16 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                    juce::MidiBuffer& midiMessages) {
   bool gesture_control = true;
 
-  parameters.volume = 3;
 
-  if (gesture_control) {
-    parameters.rate = _param_list[0] * 440;
-    tremolo.setModulationRateHz(_param_list[0] * 440);
-  }else {
-    tremolo.setModulationRateHz(parameters.rate);
+  if(false){
+    // if (gesture_control) {
+    //   parameters.rate = _param_list[0] * 440;
+    //   tremolo.setModulationRateHz(_param_list[0] * 440);
+    // }else {
+    //   tremolo.setModulationRateHz(parameters.rate);
+    // }
   }
+  parameters.volume = _param_list[0];
   tremolo.setVolume(parameters.volume);
   tremolo.process(buffer);
 }

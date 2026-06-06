@@ -68,7 +68,7 @@ public:
         const auto  inputSample = buffer.getSample(channelIndex, frameIndex);
 
         // modulate the sample
-        const auto outputSample = 0.1f * lfoValue * volume;
+        const auto outputSample = inputSample * volume;
 
         // set the output sample
         buffer.setSample(channelIndex, frameIndex, outputSample);
