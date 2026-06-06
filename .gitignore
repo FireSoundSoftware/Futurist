@@ -3,3 +3,8 @@
 libs/
 cmake-build-debug/*
 modules/gesture/.venv/*
+build/*
+.vscode/*
+*.cmake
+*.a
+modules/gesture/MySharedData
