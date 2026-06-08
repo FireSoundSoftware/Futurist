@@ -8,3 +8,5 @@ build/*
 *.cmake
 *.a
 modules/gesture/MySharedData
+deploy/MacOS/pkg/*
+deploy/MacOS/*.pkg
